@@ -1,6 +1,12 @@
 from capsul.api import Capsul, Process, Pipeline
-from soma.controller import field, File
+from capsul.qt_gui.widgets import PipelineDeveloperView
+from capsul.config.configuration import ApplicationConfiguration
+
+from soma.controller import field, File, Directory
+from soma.qt_gui.qt_backend import QtGui
+
 import typing
+import sys
 
 
 class Smooth(Process):
@@ -19,7 +25,8 @@ class Smooth(Process):
     #                                               optional=False,
     #                                               doc='in_files')
     # Inputs
-    in_files: File = field(extensions='.nii',
+    in_files: typing.Union[list[File], File] = field(extensions='.nii',
+    #in_files: File = field(extensions='.nii',
                            optional=False,
                            doc='in_files description')
 
@@ -39,7 +46,13 @@ class Smooth(Process):
                             default_factory=lambda: 's',
                             doc='out_prefix description')
 
-        # Outputs
+
+    output_directory: Directory = field(optional=False,
+                                        userlevel=1,
+                                        #default_factory=lambda: 's',
+                                        #doc='out_prefix description')
+                                        )
+    # Outputs
     smoothed_files: File = field(write=True,
                                  doc='smoothed_files description')
 
@@ -53,11 +66,11 @@ class Smooth(Process):
         # Path(self.output).parent.mkdir(parents=True, exist_ok=True)
         # with open(self.output, 'w') as f:
         #     f.write(content)
-        print('self.in_files: ', self.in_files)
-        print('self.fwhm: ', self.fwhm)
-        print('self.data_type: ', self.data_type)
-        print('self.implicit_masking: ', self.implicit_masking)
-        print('self.out_prefix: ', self.out_prefix)
+        # print('self.in_files: ', self.in_files)
+        # print('self.fwhm: ', self.fwhm)
+        # print('self.data_type: ', self.data_type)
+        # print('self.implicit_masking: ', self.implicit_masking)
+        # print('self.out_prefix: ', self.out_prefix)
         self.process.in_files = self.in_files
         self.process.fwhm= self.fwhm
         self.process.data_type = self.data_type
@@ -66,17 +79,10 @@ class Smooth(Process):
         self.process.output_directory = self.output_directory
 
         #print('self.smoothed_files: ', self.smoothed_files)
-        print('self.process: ', self.process)
-
-
-
+        #print('self.process: ', self.process)
+        self.process.execute(context=None)
 
 if __name__ == '__main__':
-    import sys
-    from soma.qt_gui.qt_backend import QtGui
-    from capsul.qt_gui.widgets import PipelineDeveloperView
-    from capsul.config.configuration import ApplicationConfiguration
-
     app = QtGui.QApplication.instance()
 
     capsul = Capsul()
@@ -106,7 +112,7 @@ if __name__ == '__main__':
     capsul.config = config.merged_config
     print('local config: ', capsul.config.asdict())
 
-    smooth.in_files = '/home/econdami/Desktop/Data_tests_capsulV3/raw/alej170316-IRM_Fonct._+_perfusion-2016-03-17_08-34-44-0-BOLD_CVR_7_53sl_ModeratePNS_SENSE-FEEPI-00-12-12.000.nii'
+    smooth.in_files = ['/home/econdami/Desktop/Data_tests_capsulV3/raw/alej170316-IRM_Fonct._+_perfusion-2016-03-17_08-34-44-1-T1_3D_SENSE-T1TFE-00-04-25.000.nii']
     smooth.output_directory = '/home/econdami/Desktop/Data_tests_capsulV3/derived'
 
 
@@ -126,4 +132,4 @@ if __name__ == '__main__':
     with capsul.engine() as engine:
         engine.run(smooth)
     
-    print('smooth.asdict(): ', smooth.asdict())
+    #print('smooth.asdict(): ', smooth.asdict())
