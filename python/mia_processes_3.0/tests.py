@@ -34,20 +34,25 @@ class Smooth(Process):
                                                    default_factory=lambda: [6., 6., 6.],
                                                    doc='fwhm description')
 
-    data_type: int = field(default_factory=lambda: 0,
-                           optional=True,
+    data_type: int = field(optional=True,
+                           #default_factory=lambda: 0,
+                           # we prefer default for immutable and default factury for mutable
+                           default=0,
                            doc='data_type')
 
     implicit_masking: bool = field(optional=True,
-                                   default_factory=lambda: False,
+                                   #default_factory=lambda: False,
+                                   default=True,
                                    doc='implicit_masking description')
 
     out_prefix: str = field(optional=True,
-                            default_factory=lambda: 's',
+                            #default_factory=lambda: 's',
+                            default='s',
                             doc='out_prefix description')
 
 
     output_directory: Directory = field(optional=False,
+                                        write=True,
                                         userlevel=1,
                                         #default_factory=lambda: 's',
                                         #doc='out_prefix description')
@@ -58,9 +63,6 @@ class Smooth(Process):
     #smoothed_files devrait etre une liste (ou une Union comme input_files),
     #et devrait etre rempli a la fin de execute() parce que la il n'est pas
     #du tout utilise
-
-    capsul = Capsul()
-    process = capsul.executable('nipype.interfaces.spm.preprocess.Smooth')
 
     def execute(self, context):
         # with open(self.input) as f:
@@ -74,6 +76,10 @@ class Smooth(Process):
         # print('self.data_type: ', self.data_type)
         # print('self.implicit_masking: ', self.implicit_masking)
         # print('self.out_prefix: ', self.out_prefix)
+
+        capsul = Capsul()
+        self.process = capsul.executable('nipype.interfaces.spm.preprocess.Smooth')
+
         self.process.in_files = self.in_files
         self.process.fwhm= self.fwhm
         self.process.data_type = self.data_type
@@ -117,6 +123,7 @@ if __name__ == '__main__':
 
     smooth.in_files = ['/home/econdami/Desktop/Data_tests_capsulV3/raw/alej170316-IRM_Fonct._+_perfusion-2016-03-17_08-34-44-1-T1_3D_SENSE-T1TFE-00-04-25.000.nii']
     smooth.output_directory = '/home/econdami/Desktop/Data_tests_capsulV3/derived'
+    smooth.out_prefix = 'toto_'
 
 
     #c.engine().config.local ######  pas bon
