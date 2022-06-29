@@ -55,6 +55,9 @@ class Smooth(Process):
     # Outputs
     smoothed_files: File = field(write=True,
                                  doc='smoothed_files description')
+    #smoothed_files devrait etre une liste (ou une Union comme input_files),
+    #et devrait etre rempli a la fin de execute() parce que la il n'est pas
+    #du tout utilise
 
     capsul = Capsul()
     process = capsul.executable('nipype.interfaces.spm.preprocess.Smooth')
